@@ -125,7 +125,7 @@ def scrape_pyszne(driver, url: str, logbox=None, parent=None):
 def start_gui():
     VERSION = "v1.0"
     root = tk.Tk()
-    root.title(f"Pyszne.pl Menu Scraper {VERSION}")
+    root.title(f"Menu Scraper {VERSION}")
     root.geometry("850x600")
     root.resizable(False, False)
 
@@ -137,11 +137,11 @@ def start_gui():
 
     root.configure(bg=bg)
 
-    tk.Label(root, text=f"Pyszne.pl Menu Scraper", font=("Segoe UI", 21, "bold"),
+    tk.Label(root, text=f"Menu Scraper", font=("Segoe UI", 21, "bold"),
              fg=accent, bg=bg, pady=8).grid(row=0, column=0, columnspan=3)
 
     # URL
-    tk.Label(root, text="Wklej URL restauracji z Pyszne.pl:", bg=bg, fg=fg, font=("Segoe UI", 12)).grid(row=1, column=0, sticky='w', padx=30, pady=(12,4), columnspan=2)
+    tk.Label(root, text="Wklej URL restauracji", bg=bg, fg=fg, font=("Segoe UI", 12)).grid(row=1, column=0, sticky='w', padx=30, pady=(12,4), columnspan=2)
     url_var = tk.StringVar()
     url_entry = tk.Entry(root, textvariable=url_var, width=60, font=("Segoe UI", 12), bg=cardbg, fg=fg, insertbackground=fg, relief="flat", highlightthickness=1, highlightbackground=accent)
     url_entry.grid(row=2, column=0, padx=30, columnspan=2, sticky="ew")
