@@ -53,6 +53,7 @@ Po kompilacji pliki `.exe` znajdziesz w folderze `dist/`.
 
 1. Uruchom program
 2. Wklej **URL restauracji**
+3. Wybierz czy chcesz zaciągnać kategorie ```"NOWOŚCI"```
 3. Kliknij **START**
 4. Zacznij scrollować strone w dół
 4. Gotowe! Plik `pyszne_YYYYMMDD_HHMM_menu.json` zostanie zapisany w tym samym folderze
