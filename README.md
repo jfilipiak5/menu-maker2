@@ -7,7 +7,7 @@ Repozytorium zawiera dwa narzędzia:
 - **writer.py** – automatycznie wgrywa menu (`.json`) do panelu Papu.io
 
 ---
-## Możesz pobrać gotowy plik `.exe` lub skompilować za pomocą tej instrukcji:
+## Możesz pobrać gotowy plik `.exe`  z folderu `dist` lub skompilować za pomocą tej instrukcji:
 
 
 ## Instalacja i kompilacja do `.exe`
@@ -61,9 +61,13 @@ Po kompilacji pliki `.exe` znajdziesz w folderze `dist/`.
 
 1. Uruchom program
 2. Wskaż plik `menu.json` (np. ten wygenerowany przez scraper)
+3. Opcjonalnie zaznacz dodatkowe opcje (dodawanie składników, opisów itd.)
 3. Kliknij **Otwórz Chrome** i zaloguj się do panelu Papu.io
-4. Kliknij **Start wprowadzania menu**
-5. Opcjonalnie zaznacz dodatkowe opcje (dodawanie składników, opisów itd.)
+
+### 4. ☠️``WAZNE: Przejdź do zakładki zarządzanie menu -> kategorie (ZAWSZE SKRYPT WŁĄCZAMY W TYM MIEJSCU)``
+
+5. Kliknij ```Start wprowadzania menu```
+
 
 ---
 
