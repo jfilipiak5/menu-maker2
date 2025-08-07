@@ -26,13 +26,13 @@ def create_driver_for_pyszne():
     options = uc.ChromeOptions()
     options.add_argument("--incognito")
     options.add_argument("--disable-blink-features=AutomationControlled")
-    options.add_argument("--start-maximized")
     options.add_argument(
         '--user-agent=Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36')
     driver = uc.Chrome(options=options, headless=False, use_subprocess=True)
     return driver
 
-def scrape_pyszne(driver, url: str, logbox=None, parent=None):
+def scrape_pyszne(driver, url: str, logbox=None, parent=None, url_entry=None, start_btn=None):
+
     stop_event = threading.Event()
     menu = {}
     already = set()
@@ -110,10 +110,17 @@ def scrape_pyszne(driver, url: str, logbox=None, parent=None):
         log_inner(f"\nZapisano: {filename}\n")
         if parent:
             messagebox.showinfo("Koniec", f"Menu zapisane do pliku: {filename}")
+
             try:
                 driver.quit()
             except Exception:
                 pass
+            if stop_button:
+                stop_button.grid_remove()  # lub stop_button.destroy()
+            if url_entry:
+                url_entry.config(state='normal')
+            if start_btn:
+                start_btn.config(state='normal')
 
     if parent:
         stop_button = tk.Button(parent, text="STOP (Zapisz i zakończ)", command=stop_and_save, bg="#e24e54", fg="#fff", font=("Segoe UI", 11, "bold"), relief="flat", cursor="hand2")
@@ -196,7 +203,13 @@ def start_gui():
             messagebox.showerror("Błąd drivera", f"Nie można uruchomić przeglądarki:\n{e}")
             return
 
-        threading.Thread(target=scrape_pyszne, args=(driver, url, logbox, root), daemon=True).start()
+        url_entry.config(state='disabled')
+        start_btn.config(state='disabled')
+        threading.Thread(
+            target=scrape_pyszne,
+            args=(driver, url, logbox, root, url_entry, start_btn),
+            daemon=True
+        ).start()
 
     start_btn = tk.Button(root, text="START", command=on_start, font=("Segoe UI", 13, "bold"),
                           bg=accent, fg=bg, activebackground="#168fe1", activeforeground="#fff", relief="flat", cursor="hand2", height=1)
