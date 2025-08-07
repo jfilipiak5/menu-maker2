@@ -174,7 +174,7 @@ def upload_menu(
     log_func("Zakończono! Zamknij okno Chrome.")
 
 # -----------------------------------------------
-#             NOWOCZESNE GUI
+#             GUI
 # -----------------------------------------------
 
 class ModernCheckbutton(tk.Frame):
