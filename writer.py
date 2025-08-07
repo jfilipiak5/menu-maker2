@@ -13,10 +13,6 @@ from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from webdriver_manager.chrome import ChromeDriverManager
 
-# -----------------------------------------------
-#              KOD UPLOAD_MENU
-# (Ten sam co poprzednio, log_func do logowania)
-# -----------------------------------------------
 
 def upload_menu(
     driver,
