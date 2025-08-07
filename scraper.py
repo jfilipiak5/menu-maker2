@@ -110,6 +110,10 @@ def scrape_pyszne(driver, url: str, logbox=None, parent=None):
         log_inner(f"\nZapisano: {filename}\n")
         if parent:
             messagebox.showinfo("Koniec", f"Menu zapisane do pliku: {filename}")
+            try:
+                driver.quit()
+            except Exception:
+                pass
 
     if parent:
         stop_button = tk.Button(parent, text="STOP (Zapisz i zakończ)", command=stop_and_save, bg="#e24e54", fg="#fff", font=("Segoe UI", 11, "bold"), relief="flat", cursor="hand2")
