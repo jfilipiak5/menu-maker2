@@ -7,6 +7,8 @@ Repozytorium zawiera dwa narzędzia:
 - **writer.py** – automatycznie wgrywa menu (`.json`) do panelu Papu.io
 
 ---
+## Możesz pobrać gotowy plik `.exe` lub skompilować za pomocą tej instrukcji:
+
 
 ## Instalacja i kompilacja do `.exe`
 
