@@ -3,9 +3,23 @@ import time
 import json
 import threading
 from datetime import datetime
-
 import tkinter as tk
 from tkinter import messagebox
+import re
+import urllib.request
+
+def validate_url(url):
+    # Prosta walidacja URL (czy wygląda jak adres Pyszne)
+    pattern = r"^https?://.*pyszne\.pl/.*$"
+    return re.match(pattern, url.strip()) is not None
+
+def check_internet(url_to_check="https://www.google.com", timeout=4):
+    try:
+        urllib.request.urlopen(url_to_check, timeout=timeout)
+        return True
+    except Exception:
+        return False
+
 
 def create_driver_for_pyszne():
     import undetected_chromedriver as uc
@@ -162,6 +176,12 @@ def start_gui():
         url = url_var.get().strip()
         if not url:
             messagebox.showerror("Brak URL", "Podaj adres URL restauracji!")
+            return
+        if not validate_url(url):
+            messagebox.showerror("Nieprawidłowy URL", "Adres musi prowadzić do profilu restauracji i zaczynać się od http(s)://")
+            return
+        if not check_internet():
+            messagebox.showerror("Brak internetu", "Brak połączenia z internetem.\nSprawdź sieć i spróbuj ponownie.")
             return
         try:
             logbox.config(state='normal')
