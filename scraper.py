@@ -137,7 +137,7 @@ def scrape_pyszne(driver, url: str, logbox=None, parent=None):
 
 # --- GUI ---
 def start_gui():
-    VERSION = "v1.0"
+    VERSION = "v1.1"
     root = tk.Tk()
     root.title(f"Menu Scraper {VERSION}")
     root.geometry("850x600")
