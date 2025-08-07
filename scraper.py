@@ -31,7 +31,7 @@ def create_driver_for_pyszne():
     driver = uc.Chrome(options=options, headless=False, use_subprocess=True)
     return driver
 
-def scrape_pyszne(driver, url: str, logbox=None, parent=None, url_entry=None, start_btn=None):
+def scrape_pyszne(driver, url: str, logbox=None, parent=None, url_entry=None, start_btn=None, exclude_novelties=True):
 
     stop_event = threading.Event()
     menu = {}
@@ -55,6 +55,8 @@ def scrape_pyszne(driver, url: str, logbox=None, parent=None, url_entry=None, st
                     except Exception:
                         continue
                     if not cat:
+                        continue
+                    if exclude_novelties and cat.upper().startswith("NOWOŚCI"):
                         continue
                     if cat not in menu:
                         menu[cat] = []
@@ -165,6 +167,21 @@ def start_gui():
     tk.Label(root, text=f"Menu Scraper", font=("Segoe UI", 21, "bold"),
              fg=accent, bg=bg, pady=8).grid(row=0, column=0, columnspan=3)
 
+    #CHECKBOX_NOWOSCI
+    exclude_novelties_var = tk.BooleanVar(value=True)  # True = domyślnie WYKLUCZAJ "NOWOŚCI"
+    exclude_novelties_cb = tk.Checkbutton(
+        root,
+        text='Wyklucz kategorie "NOWOSCI"',
+        variable=exclude_novelties_var,
+        font=("Segoe UI", 11),
+        bg=bg,
+        fg=fg,
+        activebackground=bg,
+        activeforeground=accent,
+        selectcolor=cardbg
+    )
+    exclude_novelties_cb.grid(row=2, column=2, padx=8, sticky='w')
+
     # URL
     tk.Label(root, text="Wklej URL restauracji", bg=bg, fg=fg, font=("Segoe UI", 12)).grid(row=1, column=0, sticky='w', padx=30, pady=(12,4), columnspan=2)
     url_var = tk.StringVar()
@@ -205,9 +222,10 @@ def start_gui():
 
         url_entry.config(state='disabled')
         start_btn.config(state='disabled')
+        exclude_novelties = exclude_novelties_var.get()
         threading.Thread(
             target=scrape_pyszne,
-            args=(driver, url, logbox, root, url_entry, start_btn),
+            args=(driver, url, logbox, root, url_entry, start_btn, exclude_novelties),
             daemon=True
         ).start()
 
