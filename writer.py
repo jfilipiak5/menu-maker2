@@ -3,7 +3,7 @@ import time
 import json
 import threading
 import tkinter as tk
-from tkinter import filedialog, messagebox, scrolledtext
+from tkinter import filedialog, messagebox
 import os
 import sys
 from selenium import webdriver
@@ -15,12 +15,12 @@ from webdriver_manager.chrome import ChromeDriverManager
 
 
 def upload_menu(
-    driver,
-    menu_json_path: str,
-    skip_categories: bool = False,
-    with_ingredients: bool = False,
-    with_description: bool = False,
-    log_func=print
+        driver,
+        menu_json_path: str,
+        skip_categories: bool = False,
+        with_ingredients: bool = False,
+        with_description: bool = False,
+        log_func=print
 ):
     start_time = time.time()
     wait = WebDriverWait(driver, 20)
@@ -34,19 +34,22 @@ def upload_menu(
             btn = wait.until(EC.element_to_be_clickable((By.CSS_SELECTOR, "button.btn.btn-primary.btn-sm")))
             btn.click()
             inp = wait.until(EC.visibility_of_element_located((By.CSS_SELECTOR, "input[name='categoryName']")))
-            inp.clear(); inp.send_keys(cat)
+            inp.clear();
+            inp.send_keys(cat)
             save_btn = driver.find_element(
                 By.XPATH,
                 "//button[contains(@class, 'btn-success') and not(.//span[contains(text(), 'Opublikuj')]) and (contains(., 'ZAPISZ') or contains(., 'Zapisz'))]"
             )
-            save_btn.click(); time.sleep(0.5)
+            save_btn.click();
+            time.sleep(0.5)
     else:
         log_func("Pominięto dodawanie kategorii.")
 
     tab = wait.until(EC.element_to_be_clickable((By.XPATH,
-        "//button[contains(@class,'filter__btn') and .//span[text()='Dania']]"
-    )))
-    tab.click(); time.sleep(1)
+                                                 "//button[contains(@class,'filter__btn') and .//span[text()='Dania']]"
+                                                 )))
+    tab.click();
+    time.sleep(1)
 
     for cat in categories:
         dishes = menu.get(cat, [])
@@ -54,56 +57,88 @@ def upload_menu(
         cat_el = wait.until(EC.element_to_be_clickable(
             (By.XPATH, f"//div[contains(@class,'list-group-item') and .//span[text()='{cat}']]")
         ))
-        cat_el.click(); time.sleep(0.5)
+        cat_el.click();
+        time.sleep(0.5)
 
         for didx, dish in enumerate(dishes, start=1):
             name = dish.get('name', '')
             ingredients = dish.get('ingredients', [])
             opis = dish.get('description', '').strip()
-            log_func(f"[{didx}/{len(dishes)}] Dodaję danie '{name}', składników: {len(ingredients)}, opis: {'TAK' if opis else 'NIE'}")
+            log_func(
+                f"[{didx}/{len(dishes)}] Dodaję danie '{name}', składników: {len(ingredients)}, opis: {'TAK' if opis else 'NIE'}")
+
+            # Klik "Dodaj danie"
             add_btn = wait.until(EC.element_to_be_clickable(
                 (By.CSS_SELECTOR, "button.btn.flex-shrink-0.ml-2.btn-primary.btn-sm")
             ))
             add_btn.click()
-            try:
-                slider = wait.until(EC.element_to_be_clickable(
-                    (By.XPATH, "//h4[normalize-space(text())='Domyślny']/preceding-sibling::label//span[contains(@class,'slider round')]"
-                    )
-                ))
-                slider.click(); time.sleep(0.3)
-            except:
-                pass
+
+            # --- Slider "Domyślny" (zakomentowany) ---
+            # try:
+            #     slider = wait.until(EC.element_to_be_clickable(
+            #         (By.XPATH, "//h4[normalize-space(text())='Domyślny']/preceding-sibling::label//span[contains(@class,'slider round')]"
+            #         )
+            #     ))
+            #     slider.click(); time.sleep(0.3)
+            # except:
+            #     pass
+
+            # Nazwa
             inp = wait.until(EC.visibility_of_element_located(
                 (By.CSS_SELECTOR, "input[name='mealName'], input[name='productName']")
             ))
-            inp.clear(); inp.send_keys(name)
+            inp.clear();
+            inp.send_keys(name)
+
+            # Cena
             try:
                 price_inp = wait.until(EC.visibility_of_element_located(
                     (By.CSS_SELECTOR, "input[name='price']")
                 ))
-                price_inp.clear(); price_inp.send_keys(str(dish.get('price', '')).replace(' zł','').replace(',','.'))
+                price_inp.clear();
+                price_inp.send_keys(str(dish.get('price', '')).replace(' zł', '').replace(',', '.'))
             except Exception:
                 log_func(f"Nie można wprowadzić ceny dla '{name}'")
-            save_dish = driver.find_element(By.XPATH,
-                "//button[contains(text(),'ZAPISZ') or contains(text(),'Zapisz')]"
-            )
-            save_dish.click(); time.sleep(0.5)
+
+            # Jeśli dodajemy opis, wpisz go TERAZ w formularzu
+            if with_description and opis:
+                try:
+                    desc_area = wait.until(EC.visibility_of_element_located(
+                        (By.CSS_SELECTOR, "textarea[name='mealDescription']")))
+                    desc_area.clear()
+                    desc_area.send_keys(opis)
+                    log_func(f"Opis wprowadzony w formularzu dla '{name}' (przed zapisem)")
+                except Exception as e:
+                    log_func(f"Nie udało się wprowadzić opisu w formularzu dla '{name}': {e}")
+
+            # Zapis dania
+            save_dish = wait.until(EC.element_to_be_clickable(
+                (By.XPATH, "//button[contains(text(),'ZAPISZ') or contains(text(),'Zapisz')]")
+            ))
+            save_dish.click();
+            time.sleep(1)
+
+            # Sprawdzenie błędów
             errs = driver.find_elements(By.CSS_SELECTOR, "div.alert.alert-danger p.text-danger.small.m-0")
             if errs:
                 log_func(f"Błąd: {errs[0].text}. Ponawiam zapis.")
-                try: slider.click(); time.sleep(0.3)
-                except: pass
-                save_dish.click(); time.sleep(0.5)
+                try:
+                    save_dish.click();
+                    time.sleep(1)
+                except:
+                    pass
 
+            # Dodawanie składników (po zapisie)
             if with_ingredients and ingredients:
                 try:
                     dish_div = wait.until(EC.element_to_be_clickable(
                         (By.XPATH,
                          f"//div[contains(@class,'list-group-item--draggable') and .//span[normalize-space(text())='{name}']]"
-                        )
+                         )
                     ))
                     driver.execute_script("arguments[0].scrollIntoView(true);", dish_div)
-                    dish_div.click(); time.sleep(0.5)
+                    dish_div.click();
+                    time.sleep(1)
                 except Exception as e:
                     log_func(f"Nie można wybrać dania '{name}': {e}")
                 for ing in ingredients:
@@ -112,53 +147,23 @@ def upload_menu(
                             (By.CSS_SELECTOR, "button.addSizeButton.btn-primary.btn-sm")
                         ))
                         driver.execute_script("arguments[0].scrollIntoView(true);", ing_btn)
-                        ing_btn.click(); time.sleep(0.5)
+                        ing_btn.click();
+                        time.sleep(0.5)
                         inputs = driver.find_elements(By.CSS_SELECTOR, "input[name='ingredientName']")
                         if not inputs:
                             log_func(f"Brak pola input dla '{ing}'")
                             continue
                         inp_ing = inputs[-1]
-                        inp_ing.clear(); inp_ing.send_keys(ing)
+                        inp_ing.clear();
+                        inp_ing.send_keys(ing)
                         save_ing = wait.until(EC.element_to_be_clickable(
                             (By.CSS_SELECTOR, "button.btn-input.btn-success")
                         ))
-                        save_ing.click(); time.sleep(0.8)
+                        save_ing.click();
+                        time.sleep(0.8)
                     except Exception as e:
                         log_func(f"Błąd przy dodawaniu '{ing}': {e}")
                         continue
-
-            if with_description and opis:
-                try:
-                    dish_div = wait.until(EC.element_to_be_clickable(
-                        (By.XPATH,
-                         f"//div[contains(@class,'list-group-item--draggable') and .//span[normalize-space(text())='{name}']]"
-                        )
-                    ))
-                    driver.execute_script("arguments[0].scrollIntoView(true);", dish_div)
-                    dish_div.click(); time.sleep(0.5)
-                    desc_area = wait.until(EC.visibility_of_element_located(
-                        (By.CSS_SELECTOR, "textarea[name='mealDescription']")))
-                    desc_area.clear()
-                    desc_area.send_keys(opis)
-                    log_func(f"Opis dodany do '{name}'")
-                    back_btn = wait.until(EC.element_to_be_clickable(
-                        (By.CSS_SELECTOR, "button.btn.mr-2.btn-light.btn-sm")
-                    ))
-                    back_btn.click()
-                    time.sleep(0.5)
-                    continue
-                except Exception as e:
-                    log_func(f"Nie udało się dodać opisu do '{name}': {e}")
-                    try:
-                        back_btn = driver.find_element(By.CSS_SELECTOR, "button.btn.mr-2.btn-light.btn-sm")
-                        back_btn.click(); time.sleep(0.5)
-                    except Exception:
-                        pass
-                    continue
-
-            # Po zapisaniu dania nie klikamy back_btn!
-            # Po prostu czekamy aż wróci do listy dań (strona sama powinna to zrobić)
-            # Jeśli jest operacja na opisie lub składnikach, wtedy klikamy "Wróć" po tych operacjach.
 
         try:
             back_btn = driver.find_element(By.CSS_SELECTOR, "button.btn.mr-2.btn-light.btn-sm")
@@ -179,7 +184,7 @@ def upload_menu(
 
 class ModernCheckbutton(tk.Frame):
     def __init__(self, master, text, variable, accent="#35a2ff", fg="#e3e8f3", bg="#232832", font=("Segoe UI", 11), **kwargs):
-        super().__init__(master, bg=bg)
+        super().__init__(master, bg=bg, **kwargs)
         self.var = variable
         self.accent = accent
         self.bg = bg
@@ -202,7 +207,8 @@ class ModernCheckbutton(tk.Frame):
         self.box.delete("all")
         if self.var.get():
             self.box.create_rectangle(3, 3, 19, 19, outline=self.accent, width=2, fill=self.accent)
-            self.box.create_line(7,12, 11,16, 17,7, fill="white", width=2, capstyle="round")
+            self.box.create_line(7, 12, 11, 16, width=2, capstyle="round", fill="white")
+            self.box.create_line(11, 16, 17, 7, width=2, capstyle="round", fill="white")
         else:
             self.box.create_rectangle(3, 3, 19, 19, outline=self.accent, width=2, fill=self.bg)
 
@@ -280,7 +286,6 @@ class PapuGUI:
         tk.Label(card, text="📝 Logi operacji", bg=cardbg, fg=accent, font=("Segoe UI", 12, "bold")).pack(anchor="w", padx=10, pady=(4,0))
         self.log = tk.Text(card, height=11, width=104, state="disabled", font=("Consolas", 10), bg=logbg, fg="#c8ffda", insertbackground="#7fd7ff", relief="flat", borderwidth=0)
         self.log.pack(fill="both", expand=True, padx=7, pady=(2,8))
-        self.log.pack(fill="both", expand=True, padx=7, pady=(2, 8))
         self.log_print(f"Menu uploader created by Zimny {VERSION}\n")
 
     def validate_json(self):
@@ -337,17 +342,6 @@ class PapuGUI:
             is_ok, errs = self.validate_json()
             self.show_json_status(is_ok, errs)
 
-    def choose_profile(self):
-        initialdir = None
-        if sys.platform == "win32":
-            localappdata = os.environ.get("LOCALAPPDATA", "")
-            chrome_user_data = os.path.join(localappdata, "Google", "Chrome", "User Data")
-            if os.path.isdir(chrome_user_data):
-                initialdir = chrome_user_data
-        dirname = filedialog.askdirectory(title="Wybierz katalog profilu Chrome", initialdir=initialdir)
-        if dirname:
-            self.profile_entry.delete(0, tk.END)
-            self.profile_entry.insert(0, dirname)
 
     def preview_json(self):
         path = self.menu_entry.get()
@@ -416,7 +410,6 @@ class PapuGUI:
         self.root.update()
 
     def open_chrome(self):
-        menu_path = self.menu_entry.get()
         is_ok, errs = self.validate_json()
         if not is_ok:
             messagebox.showerror("Błąd", "Nie można uruchomić — błędny plik menu.json!\n" + "\n".join(errs))
