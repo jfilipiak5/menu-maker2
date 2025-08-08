@@ -65,7 +65,7 @@ Po kompilacji pliki `.exe` znajdziesz w folderze `dist/`.
 3. Opcjonalnie zaznacz dodatkowe opcje (dodawanie składników, opisów itd.)
 3. Kliknij **Otwórz Chrome** i zaloguj się do panelu Papu.io
 
-### 4. ☠️``WAZNE: Przejdź do zakładki zarządzanie menu -> kategorie (ZAWSZE SKRYPT WŁĄCZAMY W TYM MIEJSCU)``
+### 4. ☠️``WAZNE: Przejdź do zakładki zarządzanie menu -> kategorie (ZAWSZE SKRYPT WŁĄCZAMY W TYM MIEJSCU NAWET JAK POMIJAMY DODANIE KATEGORII)``
 
 5. Kliknij ```Start wprowadzania menu```
 
